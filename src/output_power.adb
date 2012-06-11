@@ -20,6 +20,7 @@ with Nuclear_Physics;  use Nuclear_Physics;
 with Control_Rods;     use Control_Rods;
 with Plant_Simulator;  use Plant_Simulator;
 with Ada.Text_IO;      use Ada.Text_IO;
+with Notification;     use Notification;
 
 -- author: Alberto Franco
 package body Output_Power is
@@ -29,9 +30,10 @@ package body Output_Power is
    task body Output_Power_Status is
       Next_Activation:Time := Start_Time;
    begin
+      Start_Deamon.Wait_For_System_Start;
       select
          Mode_Changer.Goto_Maintainance_Mode;
-         Put_Line("[MODE CHANGE]: Abort Output_Power_Status");
+         Put_Line("[MODE CHANGER]: Abort Output_Power_Status");
          Mode_Changer.Restart_Operations;
       then abort
          loop
@@ -49,6 +51,7 @@ package body Output_Power is
       Next_Activation : Time := Start_Time;
       Power_Level     : Float;
    begin
+      Start_Deamon.Wait_For_System_Start;
       loop
          delay until Next_Activation;
          Output_Power_Controller_Control_Agent.Wait(New_Power_Level => Power_Level);
@@ -89,10 +92,14 @@ package body Output_Power is
       Output_Performance: constant Float :=
                   Get_Output_Performance(Plant.Get_TC_Configuration);
    begin
-      Put_Line("Output_Per" & Output_Performance'Img);
-      Put_Line("ROds_height" & Plant.Get_Rods_Height'Img);
+      -- DEBUG PRINTS
+      -- Put_Line("Output_Per" & Output_Performance'Img);
+      -- Put_Line("Rods_height" & Plant.Get_Rods_Height'Img);
       if Output_Performance < PERFORMANCE_LIMIT then
+         Output_Raise_Try_Count := Output_Raise_Try_Count + 1;
          Output_Power_Controller_Control_Agent.Notify(PERFORMANCE_LIMIT + PERFORMANCE_OFFSET);
+      else
+         Output_Raise_Try_Count := 0;
       end if;
    end Check_Output_Power;
 
@@ -100,10 +107,16 @@ package body Output_Power is
    -- raise. It continues to higher rods until an hard limit is hit. If that
    -- limit is hit notifies the failure of the operation and change mode
    procedure Raise_Output_Power is
-      RODS_HIGH_FACTOR : constant Float := 100.0;
+      RODS_HIGH_FACTOR : constant Float   := 100.0;
+      TRY_HARD_LIMIT   : constant Integer := 20;
+      Msg              : constant Message_Notification := (OUTPUT_PWR, 20.0);
    begin
-      --! TODO implement mode change and limit hit
-      Control_Rods_Actuator_Control_Agent.Notify(Rods_Offset => RODS_HIGH_FACTOR);
+      if Output_Raise_Try_Count < TRY_HARD_LIMIT then
+         Control_Rods_Actuator_Control_Agent.Notify(Rods_Offset => RODS_HIGH_FACTOR);
+      else
+         Notification_Pipe_Control_Agent.Notify(Create_Status_Log(Msg));
+         Mode_Changer.Switch_To(MAINTAINANCE_MODE);
+      end if;
    end Raise_Output_Power;
 
 end Output_Power;

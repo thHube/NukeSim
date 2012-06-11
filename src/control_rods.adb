@@ -27,6 +27,7 @@ package body Control_Rods is
    task body Control_Rods_Status is
       Next_Activation:Time := Start_Time;
    begin
+      Start_Deamon.Wait_For_System_Start;
       loop
          -- This task is active all of the time.
          delay until Next_Activation;
@@ -57,6 +58,7 @@ package body Control_Rods is
       Next_Activation : Time := Start_Time;
       New_Height      : Float;
    begin
+      Start_Deamon.Wait_For_System_Start;
       loop
          delay until Next_Activation;
          Control_Rods_Actuator_Control_Agent.Wait(Rods_Offset => New_Height);

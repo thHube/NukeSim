@@ -24,7 +24,10 @@ with Ada.Real_Time;   use Ada.Real_Time;
 package Plant_Simulator is
 
    -- Start up the simulation
-   procedure Trigger_Simulation;
+   procedure Trigger_Simulation(Config_Filename:in String);
+
+   -- Abort the simulation
+   procedure Kill_Simulation;
 
    -- Protected resource that simulate the plan
    protected Plant is
@@ -77,15 +80,16 @@ private
    -- that wraps the events up is orderer and events fires after the given offset
    type Simulation_Event is
       record
-         Release_Offset : Time_Span;
-         Event_Type     : Simulation_Event_Type;
-         Params         : Float;
+         Release_Offset : Time_Span             := Milliseconds(1000);
+         Event_Type     : Simulation_Event_Type := RC_PRESSURE;
+         Params         : Float                 := 1.0;
       end record;
 
-   type Index is range 1 .. 100;
-
    -- Simulation event queue is an array of events
-   type Simulation_Event_Queue is array (Index range <>) of Simulation_Event;
+   type Sim_Index is range 0..49;
+   type Simulation_Event_Queue is array (Sim_Index) of Simulation_Event;
+   SIM_QUEUE_SIZE : constant Integer := 50;
+   Read_Events    : Integer          := 0;
 
    -- Task that simulate the plant. At precise time interval the task is
    -- triggered and modifies plant current configuration.
@@ -93,6 +97,9 @@ private
       -- Trigger for simulation start
       entry Start_Simulation(Events:Simulation_Event_Queue);
    end Plant_Simulation;
+
+   -- Parse the input configuration file to generate a simulation scenario
+   function Parse_Config_File(Filename: in String) return Simulation_Event_Queue;
 
 end Plant_Simulator;
 

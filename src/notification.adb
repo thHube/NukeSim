@@ -62,6 +62,7 @@ package body Notification is
       Next_Activation : Time := Start_Time;
       Current_Message : Message;
    begin
+      Start_Deamon.Wait_For_System_Start;
       loop
          delay until Next_Activation;
          Notification_Pipe_Control_Agent.wait(New_Message => Current_Message);
@@ -79,7 +80,7 @@ package body Notification is
             Log_manager.Log_String(Msg.Msg_String);
          when MODE_CHANGE =>
             Mode_Changer.Switch_To(Msg.New_Mode);
-            Put_Line("[MODE CHANGE]: Changed mode to " & Msg.New_Mode'Img);
+            Put_Line("[MODE CHANGER]: Changed mode to " & Msg.New_Mode'Img);
       end case;
    end Dispatch_Message;
 
@@ -99,6 +100,8 @@ package body Notification is
                Str := To_Unbounded_String("[TC PUMP     ]: Flow level " & Msg.Params'Img);
             when RC_PRESSURE =>
                Str := To_Unbounded_String("[RC PRESSURE ]: Change pressure to " & Msg.Params'Img);
+            when OUTPUT_PWR =>
+               Str := To_Unbounded_String("[OUTPUT POWER]: Could not raise output power");
          end case;
          Put_Line(To_String(Str));
          Log := Log & Str;

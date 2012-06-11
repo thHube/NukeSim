@@ -24,6 +24,7 @@ package body Coordinator is
       Next_Activation : Time := Start_Time;
       Release_Time    : Time;
    begin
+      Start_Deamon.Wait_For_System_Start;
       loop
          delay until Next_Activation;
          Release_Time := Clock;
@@ -32,6 +33,19 @@ package body Coordinator is
          Next_Activation := Release_Time + MODE_CHANGER_INTERARRIVAL;
       end loop;
    end Mode_Changer_Daemon;
+
+   -- Start_Daemon implementation
+   protected body Start_Deamon is
+      entry Wait_For_System_Start when Is_Waiting is
+      begin null; end;
+
+      procedure Awake_System(The_Delay: in Time_Span) is
+      begin
+         Start_Time := Clock + The_Delay;
+         Is_Waiting := False;
+      end Awake_System;
+
+   end Start_Deamon;
 
    -- Mode changer protected resource.
    protected body Mode_Changer is

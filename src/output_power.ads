@@ -57,4 +57,7 @@ private
    procedure Check_Output_Power;
    procedure Raise_Output_Power;
 
+   -- Used not to try to raise output power too much
+   Output_Raise_Try_Count: Integer := 0;
+
 end Output_Power;

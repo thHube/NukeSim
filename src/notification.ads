@@ -25,7 +25,7 @@ package Notification is
    type Message_Type   is (MODE_CHANGE, STATUS_LOG);
 
    type Notification_Switch is
-     (RC_PUMP, RC_PRESSURE, RC_CONTROL_RODS, COOLING_SYSTEM, TC_PUMP);
+     (RC_PUMP, RC_PRESSURE, RC_CONTROL_RODS, COOLING_SYSTEM, TC_PUMP, OUTPUT_PWR);
 
    type Message_Notification is
       record

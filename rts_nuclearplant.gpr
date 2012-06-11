@@ -1,3 +1,4 @@
+with "xmlada";
 project Rts_Nuclearplant is
 
    for Source_Dirs use ("src");

@@ -28,6 +28,15 @@ package Coordinator is
    -- Wait for system to load before starting operations
    Start_Time: Time := Clock + BOOTSTRAP_TIME + BOOT_DELAY;
 
+   -- Used for system start. Each task before commencing operations waits on
+   -- this protected's entry.
+   protected Start_Deamon is
+      entry Wait_For_System_Start;
+      procedure Awake_System(The_Delay: in Time_Span);
+   private
+      Is_Waiting : Boolean := True;
+   end Start_Deamon;
+
    -- Type for mode management
    type Operation_Modes is (START_MODE, MAINTAINANCE_MODE);
 

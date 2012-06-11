@@ -32,6 +32,7 @@ package body RC_Status is
    task body Water_Temperature_Status is
       Next_Activation:Time := Start_Time;
    begin
+      Start_Deamon.Wait_For_System_Start;
       loop
          delay until Next_Activation;
          Next_Activation := WATER_TEMPERATURE_STATUS_PERIOD + Clock;
@@ -44,6 +45,7 @@ package body RC_Status is
    task body RC_Pump_Status is
       Next_Activation : Time := Start_Time;
    begin
+      Start_Deamon.Wait_For_System_Start;
       loop
          delay until Next_Activation;
          Next_Activation := RC_PUMP_STATUS_PERIOD + Clock;
@@ -56,6 +58,7 @@ package body RC_Status is
       Next_Activation : Time := Start_Time;
       Pressure        : Float;
    begin
+      Start_Deamon.Wait_For_System_Start;
       loop
          delay until Next_Activation;
          RC_Pressure_Actuator_Control_Agent.Wait(Pressure => Pressure);

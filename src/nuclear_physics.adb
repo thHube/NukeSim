@@ -43,9 +43,10 @@ package body Nuclear_Physics is
    -- relation between rods immersion and energy emitted is highly non-linear
    function Get_RC_Temperature(Conf:RC_Configuration) return Float is
       Temperature: Float;
+      Percentage_Loss: constant Float := 0.6;
    begin
       Temperature := Conf.Rods_Height * Rods_Height_Factor;
-      return Temperature;
+      return (Temperature - Temperature * Percentage_Loss);
    end Get_RC_Temperature;
 
    -- Implementation of the function to get the turbine circuit temperature
@@ -64,11 +65,12 @@ package body Nuclear_Physics is
    -- perfoms a very simple calculation returning the ratio between the actual
    -- temperature of the RC water and the heat exchanged.
    function Get_Output_Performance(Conf:TC_Configuration) return Float is
-      Temp_Exchanged : Float := Get_TC_Temperature(Conf);
-      Temp_RC        : Float := Get_RC_Temperature(Conf.RC_Conf);
+      Temp_Exchanged : constant Float := Get_TC_Temperature(Conf);
+      Temp_RC        : constant Float := Get_RC_Temperature(Conf.RC_Conf);
    begin
-      Put_Line("Temp_RC:" & Temp_RC'Img & ", Temp_Exchanged:" & Temp_Exchanged'Img);
-      return  Temp_Exchanged / Temp_RC;
+      -- DEBUG PRINT
+      -- Put_Line("Temp_RC:" & Temp_RC'Img & ", Temp_Exchanged:" & Temp_Exchanged'Img);
+      return  Temp_RC / Temp_Exchanged;
    end Get_Output_Performance;
 
 end Nuclear_Physics;

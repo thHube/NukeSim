@@ -30,9 +30,10 @@ package body TC_Status is
    task body Heat_Exchange_Temp_Status is
       Next_Activation: Time := Start_Time;
    begin
+      Start_Deamon.Wait_For_System_Start;
       select
          Mode_Changer.Goto_Maintainance_Mode;
-         Put_Line("[MODE CHANGE]: Abort Heat_Exchange_Temp_Status");
+         Put_Line("[MODE CHANGER]: Abort Heat_Exchange_Temp_Status");
          Mode_Changer.Restart_Operations;
       then abort
          loop
@@ -48,9 +49,10 @@ package body TC_Status is
    task body TC_Pump_Status is
       Next_Activation: Time := Start_Time;
    begin
+      Start_Deamon.Wait_For_System_Start;
       select
          Mode_Changer.Goto_Maintainance_Mode;
-         Put_Line("[MODE CHANGE]: Abort TC_Pump_Status");
+         Put_Line("[MODE CHANGER]: Abort TC_Pump_Status");
          Mode_Changer.Restart_Operations;
       then abort
          loop
@@ -65,9 +67,10 @@ package body TC_Status is
    task body Cooling_System_Status is
       Next_Activation: Time := Start_Time;
    begin
+      Start_Deamon.Wait_For_System_Start;
       select
          Mode_Changer.Goto_Maintainance_Mode;
-         Put_Line("[MODE CHANGE]: Abort Cooling_System_Status");
+         Put_Line("[MODE CHANGER]: Abort Cooling_System_Status");
          Mode_Changer.Restart_Operations;
       then abort
          loop

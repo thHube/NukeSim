@@ -15,8 +15,16 @@
 -- You should have received a copy of the GNU General Public License          --
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.      --
 --------------------------------------------------------------------------------
-
 with Ada.Text_IO; use Ada.Text_IO;
+with Coordinator; use Coordinator;
+
+with Input_Sources.File; use Input_Sources.File;
+with Sax.Readers;        use Sax.Readers;
+with DOM.Readers;        use DOM.Readers;
+with DOM.Core;           use DOM.Core;
+with DOM.Core.Documents; use DOM.Core.Documents;
+with DOM.Core.Nodes;     use DOM.Core.Nodes;
+with DOM.Core.Attrs;     use DOM.Core.Attrs;
 
 -- Implementation of the plant simulation. Here is defined the protected
 -- resource that manages the plant and the private task that allow the events
@@ -24,15 +32,70 @@ with Ada.Text_IO; use Ada.Text_IO;
 -- author: Alberto Franco
 package body Plant_Simulator is
 
-   procedure Trigger_Simulation is
-      Events: constant Simulation_Event_Queue :=
-        ((Seconds(1), RODS_HEIGHT, 1100.0),
-         (Seconds(1), RC_PRESSURE, 5.0),
-         (Seconds(2), RODS_HEIGHT, 200.0),
-         (Seconds(4), RC_PUMP, 30.0));
+   -- Parse a configuration file and return the event queue created
+   function Parse_Config_File(Filename: in String) return Simulation_Event_Queue is
+      -- XML-parsing-related data
+      Input : File_Input;
+      Reader: Tree_Reader;
+      Doc    : Document;
+      List   : Node_List;
+      N      : Node;
+      -- Support data
+      Events : Simulation_Event_Queue := (others => (Milliseconds(1000), RC_PRESSURE, 1.0));
+      Index  : Sim_Index := 0;
+      Int_Idx: Integer := 0;
+      -- Attributes for parsing
+      Sim_Delay  : Attr;
+      Sim_Type   : Attr;
+      Sim_Params : Attr;
    begin
+      Set_Public_Id(Input, "Configuration File");
+      Open(Filename, Input);
+
+      Set_Feature (Reader, Validation_Feature, False);
+      Set_Feature (Reader, Namespace_Feature, False);
+
+      Parse (Reader, Input);
+      Close (Input);
+
+      Doc := Get_Tree (Reader);
+      List := Get_Elements_By_Tag_Name (Doc, "event");
+
+      -- Initialize the event queue
+      while Int_Idx < SIM_QUEUE_SIZE and Int_Idx < Length(List) loop
+         N := Item (List, Int_Idx);
+         Sim_Delay  := Get_Named_Item (Attributes (N), "delay");
+         Sim_Type   := Get_Named_Item (Attributes (N), "type");
+         Sim_Params := Get_Named_Item (Attributes (N), "params");
+
+         Events(Index) := (Milliseconds(Integer'Value(Value(Sim_Delay))),
+                           Simulation_Event_Type'Value(Value(Sim_Type)),
+                           Float'Value(Value(Sim_Params)));
+
+         -- Put_Line ("Read event " & Events(Index).Event_Type'Img);
+         Index := Index + 1;
+         Int_Idx := Int_Idx + 1;
+      end loop;
+      Free (List);
+      Free (Reader);
+
+      Read_Events := Int_Idx;
+      return Events;
+   end Parse_Config_File;
+
+   -- Starts the simulation
+   procedure Trigger_Simulation(Config_Filename:in String) is
+      Events: constant Simulation_Event_Queue := Parse_Config_File(Config_Filename);
+   begin
+
       Plant_Simulation.Start_Simulation(Events);
+      Start_Deamon.Awake_System(Seconds(2));
    end Trigger_Simulation;
+
+   procedure Kill_Simulation is
+   begin
+      abort Plant_Simulation;
+   end Kill_Simulation;
 
    protected body Plant is
       -- Returns the current RC configuration
@@ -110,8 +173,12 @@ package body Plant_Simulator is
    -- it waits for an event queue to be submitted.
    task body Plant_Simulation is
    begin
+      Start_Deamon.Wait_For_System_Start;
       accept Start_Simulation (Events : Simulation_Event_Queue) do
          for I in Events'Range loop
+            -- Check for events
+            if Integer(I) = Read_Events then exit; end if;
+
             delay until Clock + Events(I).Release_Offset;
             Put_Line("[SIM EVENT] <" & Events(I).Event_Type'Img & ">: " & Events(I).Params'Img);
             case Events(I).Event_Type is
