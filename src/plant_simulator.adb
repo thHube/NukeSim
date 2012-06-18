@@ -76,6 +76,9 @@ package body Plant_Simulator is
          Index := Index + 1;
          Int_Idx := Int_Idx + 1;
       end loop;
+
+      Put_Line("Done reading the config file");
+
       Free (List);
       Free (Reader);
 

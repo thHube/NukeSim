@@ -1,4 +1,8 @@
 <config>
-	<event delay="1000" type="RODS_HEIGHT" params="1100.0" />
-	<event delay="1000" type="RC_PRESSURE" params="5.0" />
+	<event delay="1000" type="RODS_HEIGHT"      params="1100.0" />
+	<event delay="1000" type="RC_PRESSURE"      params="5.0"    />
+    <event delay="2000" type="RODS_HEIGHT"      params="100.0"  />
+    <event delay="1500" type="RC_PUMP"          params="75.0"   />
+    <event delay="1000" type="RC_PUMP"          params="60.0"   />
+    <event delay="1000" type="COOLING_SYSTEM"   params="80.0"   />
 </config>

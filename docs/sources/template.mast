@@ -1,0 +1,659 @@
+--------------------------------------------------------------------
+-- Critical tasks scheduling servers.
+--------------------------------------------------------------------
+Scheduling_Server(
+    Type => Regular,
+    Name => Control_Rods_Status_Server,
+    Server_Sched_Parameters    => (
+        Type        => Fixed_Priority_Policy,
+        Preassigned => No),
+    Scheduler => Default_Scheduler
+);
+
+Scheduling_Server(
+    Type => Regular,
+    Name => RC_Pump_Status_Server,
+    Server_Sched_Parameters    => (
+        Type        => Fixed_Priority_Policy,
+        Preassigned => No),
+    Scheduler => Default_Scheduler
+);
+
+Scheduling_Server(
+    Type => Regular,
+    Name => Water_Pressure_Status_Server,
+    Server_Sched_Parameters    => (
+        Type        => Fixed_Priority_Policy,
+        Preassigned => No),
+    Scheduler => Default_Scheduler
+);
+
+--------------------------------------------------------------------
+-- Non-critical periodic tasks scheduling servers. 
+--------------------------------------------------------------------
+Scheduling_Server(
+    Type => Regular,
+    Name => Heat_Exchange_Status_Server,
+    Server_Sched_Parameters    => (
+        Type        => Fixed_Priority_Policy,
+        Preassigned => No),
+    Scheduler => Default_Scheduler
+);
+
+Scheduling_Server(
+    Type => Regular,
+    Name => TC_Pump_Status_Server,
+    Server_Sched_Parameters    => (
+        Type        => Fixed_Priority_Policy,
+        Preassigned => No),
+    Scheduler => Default_Scheduler
+);
+
+Scheduling_Server(
+    Type => Regular,
+    Name => Cooling_System_Status_Server,
+    Server_Sched_Parameters    => (
+        Type        => Fixed_Priority_Policy,
+        Preassigned => No),
+    Scheduler => Default_Scheduler
+);
+
+Scheduling_Server(
+    Type => Regular,
+    Name => Output_Power_Status_Server,
+    Server_Sched_Parameters    => (
+        Type        => Fixed_Priority_Policy,
+        Preassigned => No),
+    Scheduler => Default_Scheduler
+);
+
+--------------------------------------------------------------------
+-- Sporadic task scheduling servers.
+--------------------------------------------------------------------
+Scheduling_Server(
+    Type => Regular,
+    Name => Control_Rods_Actuator_Server,
+    Server_Sched_Parameters    => (
+        Type        => Fixed_Priority_Policy,
+        Preassigned => No),
+    Scheduler => Default_Scheduler
+);
+
+Scheduling_Server(
+    Type => Regular,
+    Name => RC_Water_Pressure_Actuator_Server,
+    Server_Sched_Parameters    => (
+        Type        => Fixed_Priority_Policy,
+        Preassigned => No),
+    Scheduler => Default_Scheduler
+);
+
+Scheduling_Server(
+    Type => Regular,
+    Name => Output_Power_Controller_Server,
+    Server_Sched_Parameters    => (
+        Type        => Fixed_Priority_Policy,
+        Preassigned => No),
+    Scheduler => Default_Scheduler
+);
+
+Scheduling_Server(
+    Type => Regular,
+    Name => Notification_Pipe_Server,
+    Server_Sched_Parameters    => (
+        Type        => Fixed_Priority_Policy,
+        Preassigned => No),
+    Scheduler => Default_Scheduler
+);
+
+Scheduling_Server(
+    Type => Regular,
+    Name => Mode_Changer_Server,
+    Server_Sched_Parameters    => (
+        Type        => Fixed_Priority_Policy,
+        Preassigned => No),
+    Scheduler => Default_Scheduler
+);
+
+--------------------------------------------------------------------
+-- Shared resources
+--------------------------------------------------------------------
+Shared_Resource(
+    Type => Immediate_Ceiling_Resource,
+    Name => Control_Rods_Actuator_CA
+);
+
+Shared_Resource(
+    Type => Immediate_Ceiling_Resource,
+    Name => RC_Water_Pressure_Actuator_CA
+);
+
+Shared_Resource(
+    Type => Immediate_Ceiling_Resource,
+    Name => Output_Power_Controller_CA
+);
+
+Shared_Resource(
+    Type => Immediate_Ceiling_Resource,
+    Name => Notification_Pipe_CA
+);
+
+Shared_Resource(
+    Type => Immediate_Ceiling_Resource,
+    Name => Mode_Changer_CA
+);
+
+--------------------------------------------------------------------
+-- Critical Sections
+--------------------------------------------------------------------
+
+-- This operation open the guarded entry on Control_Agent of 
+-- Control_Rods_Actuator and notify it to start its operations
+Operation( 
+    Type => Simple,
+    Name => Control_Rods_Actuator_Notify,
+    Worst_Case_Execution_Time   => 5, 
+    Shared_Resources_List        => (Control_Rods_Actuator_CA)
+);
+
+-- This is the operataion that awake the sporadic task and let it  
+-- does its operations. 
+Operation (
+    Type => Simple,
+    Name => Control_Rods_Actuator_Entry,
+    Worst_Case_Execution_Time   => 5, 
+    Shared_Resources_List        => (Control_Rods_Actuator_CA)
+);
+
+-- RC_Water_Pressure_Actuator --------------------------------------
+Operation( 
+    Type => Simple,
+    Name => RC_Water_Pressure_Actuator_Notify,
+    Worst_Case_Execution_Time   => 5, 
+    Shared_Resources_List        => (RC_Water_Pressure_Actuator_CA)
+);
+
+Operation (
+    Type => Simple,
+    Name => RC_Water_Pressure_Actuator_Entry,
+    Worst_Case_Execution_Time   => 5, 
+    Shared_Resources_List        => (RC_Water_Pressure_Actuator_CA)
+);
+
+-- Output_Power_Controller -----------------------------------------
+Operation( 
+    Type => Simple,
+    Name => Output_Power_Controller_Notify,
+    Worst_Case_Execution_Time   => 5, 
+    Shared_Resources_List        => (Output_Power_Controller_CA)
+);
+
+Operation (
+    Type => Simple,
+    Name => Output_Power_Controller_Entry,
+    Worst_Case_Execution_Time   => 5, 
+    Shared_Resources_List        => (Output_Power_Controller_CA)
+);
+
+-- Notification_Pipe -----------------------------------------------
+Operation( 
+    Type => Simple,
+    Name => Notification_Pipe_Send_Message,
+    Worst_Case_Execution_Time   => 5, 
+    Shared_Resources_List        => (Notification_Pipe_CA)
+);
+
+Operation (
+    Type => Simple,
+    Name => Notification_Pipe_Receive,
+    Worst_Case_Execution_Time   => 5, 
+    Shared_Resources_List        => (Notification_Pipe_CA)
+);
+
+-- Mode_Changer ----------------------------------------------------
+Operation( 
+    Type => Simple,
+    Name => Mode_Changer_Issue_MCR,
+    Worst_Case_Execution_Time   => 5, 
+    Shared_Resources_List        => (Mode_Changer_CA)
+);
+
+Operation (
+    Type => Simple,
+    Name => Mode_Changer_Receive_MCR,
+    Worst_Case_Execution_Time   => 5, 
+    Shared_Resources_List        => (Mode_Changer_CA)
+);
+
+--------------------------------------------------------------------
+-- Job definitions
+--------------------------------------------------------------------
+
+-- Critical periodic tasks -----------------------------------------
+Operation (
+    Type => Enclosing,
+    Name => Control_Rods_Status_Job,
+    Worst_Case_Execution_Time => 200,
+    Composite_Operation_List  => (
+        Control_Rods_Actuator_Notify,
+        Notification_Pipe_Send_Message)
+);
+
+Operation (
+    Type => Enclosing,
+    Name => RC_Pump_Status_Job,
+    Worst_Case_Execution_Time => 200,
+    Composite_Operation_List  => (Notification_Pipe_Send_Message)
+);
+
+
+Operation (
+    Type => Enclosing,
+    Name => Water_Pressure_Status_Job,
+    Worst_Case_Execution_Time => 200,
+    Composite_Operation_List  => (
+        Control_Rods_Actuator_Notify,
+        RC_Water_Pressure_Actuator_Notify)
+);
+
+-- Non-critical periodic tasks -------------------------------------
+Operation (
+    Type => Enclosing,
+    Name => Heat_Exchange_Temp_Status_Job,
+    Worst_Case_Execution_Time => 120,
+    Composite_Operation_List  => (Control_Rods_Actuator_Notify)
+);
+
+Operation (
+    Type => Enclosing,
+    Name => Output_Power_Status_Job,
+    Worst_Case_Execution_Time => 120,
+    Composite_Operation_List  => (Output_Power_Controller_Notify)
+);
+
+Operation (
+    Type => Enclosing,
+    Name => TC_Pump_Status_Job,
+    Worst_Case_Execution_Time => 120,
+    Composite_Operation_List  => (Notification_Pipe_Send_Message)
+);
+
+Operation (
+    Type => Enclosing,
+    Name => Cooling_System_Status_Job,
+    Worst_Case_Execution_Time => 120,
+    Composite_Operation_List  => (Notification_Pipe_Send_Message)
+);
+
+-- Sporadic tasks --------------------------------------------------
+Operation (
+    Type => Enclosing,
+    Name => Control_Rods_Actuator_Job,
+    Worst_Case_Execution_Time => 150,
+    Composite_Operation_List  => (Control_Rods_Actuator_Entry)
+);
+
+Operation (
+    Type => Enclosing,
+    Name => RC_Water_Pressure_Actuator_Job,
+    Worst_Case_Execution_Time => 150,
+    Composite_Operation_List  => (RC_Water_Pressure_Actuator_Entry)
+);
+
+Operation (
+    Type => Enclosing,
+    Name => Output_Power_Controller_Job,
+    Worst_Case_Execution_Time => 150,
+    Composite_Operation_List  => (
+        Control_Rods_Actuator_Notify,
+        Notification_Pipe_Send_Message, 
+        Output_Power_Controller_Entry
+    )
+);
+
+Operation (
+    Type => Enclosing,
+    Name => Notification_Pipe_Job,
+    Worst_Case_Execution_Time => 500,
+    Composite_Operation_List  => (
+        Notification_Pipe_Receive,
+        Mode_Changer_Issue_MCR
+    )
+);
+
+Operation (
+    Type => Enclosing,
+    Name => Mode_Changer_Job,
+    Worst_Case_Execution_Time => 350,
+    Composite_Operation_List  => (Mode_Changer_Receive_MCR)
+);
+
+--------------------------------------------------------------------
+-- Critical periodic transactions
+--------------------------------------------------------------------
+Transaction (
+    Type            => Regular,
+    Name            => Control_Rods_Status_Task,
+    External_Events => ((
+        Type    => Periodic, 
+        Name    => CRS_Act,
+        Period  => 500
+    )),
+    Internal_Events => ((
+        Type => Regular,
+        Name => CRS_End,
+        Timing_Requirements => (
+            Type             => Hard_Global_Deadline,
+            Deadline         => 500,
+            Referenced_Event => CRS_Act
+        )
+    )),
+    Event_Handlers => ((
+        Type                => System_Timed_Activity,
+        Input_Event         => CRS_Act,
+        Output_Event        => CRS_End,
+        Activity_Operation  => Control_Rods_Status_Job,
+        Activity_Server     => Control_Rods_Status_Server
+    ))
+);
+
+Transaction (
+    Type            => Regular,
+    Name            => RC_Pump_Status_Task,
+    External_Events => ((
+        Type    => Periodic, 
+        Name    => RCPS_Act,
+        Period  => 500
+    )),
+    Internal_Events => ((
+        Type => Regular,
+        Name => RCPS_End,
+        Timing_Requirements => (
+            Type             => Hard_Global_Deadline,
+            Deadline         => 500,
+            Referenced_Event => RCPS_Act
+        )
+    )),
+    Event_Handlers => ((
+        Type                => System_Timed_Activity,
+        Input_Event         => RCPS_Act,
+        Output_Event        => RCPS_End,
+        Activity_Operation  => RC_Pump_Status_Job,
+        Activity_Server     => RC_Pump_Status_Server
+    ))
+);
+
+
+Transaction (
+    Type            => Regular,
+    Name            => Water_Pressure_Status_Task,
+    External_Events => ((
+        Type    => Periodic, 
+        Name    => WPS_Act,
+        Period  => 500
+    )),
+    Internal_Events => ((
+        Type => Regular,
+        Name => WPS_End,
+        Timing_Requirements => (
+            Type             => Hard_Global_Deadline,
+            Deadline         => 500,
+            Referenced_Event => WPS_Act
+        )
+    )),
+    Event_Handlers => ((
+        Type                => System_Timed_Activity,
+        Input_Event         => WPS_Act,
+        Output_Event        => WPS_End,
+        Activity_Operation  => Water_Pressure_Status_Job,
+        Activity_Server     => Water_Pressure_Status_Server
+    ))
+);
+
+--------------------------------------------------------------------
+-- Non-critical perdioic transactions
+--------------------------------------------------------------------
+Transaction (
+    Type            => Regular,
+    Name            => Heat_Exchange_Temp_Status_Task,
+    External_Events => ((
+        Type    => Periodic, 
+        Name    => HEAT_Act,
+        Period  => 800
+    )),
+    Internal_Events => ((
+        Type => Regular,
+        Name => HEAT_End,
+        Timing_Requirements => (
+            Type             => Hard_Global_Deadline,
+            Deadline         => 800,
+            Referenced_Event => HEAT_Act
+        )
+    )),
+    Event_Handlers => ((
+        Type                => System_Timed_Activity,
+        Input_Event         => HEAT_Act,
+        Output_Event        => HEAT_End,
+        Activity_Operation  => Water_Pressure_Status_Job,
+        Activity_Server     => Water_Pressure_Status_Server
+    ))
+);
+
+Transaction (
+    Type            => Regular,
+    Name            => Output_Power_Status_Task,
+    External_Events => ((
+        Type    => Periodic, 
+        Name    => OPS_Act,
+        Period  => 800
+    )),
+    Internal_Events => ((
+        Type => Regular,
+        Name => OPS_End,
+        Timing_Requirements => (
+            Type             => Hard_Global_Deadline,
+            Deadline         => 800,
+            Referenced_Event => OPS_Act
+        )
+    )),
+    Event_Handlers => ((
+        Type                => System_Timed_Activity,
+        Input_Event         => OPS_Act,
+        Output_Event        => OPS_End,
+        Activity_Operation  => Output_Power_Status_Job,
+        Activity_Server     => Output_Power_Status_Server
+    ))
+);
+
+
+Transaction (
+    Type            => Regular,
+    Name            => TC_Pump_Status_Task,
+    External_Events => ((
+        Type    => Periodic, 
+        Name    => TCPS_Act,
+        Period  => 800
+    )),
+    Internal_Events => ((
+        Type => Regular,
+        Name => TCPS_End,
+        Timing_Requirements => (
+            Type             => Hard_Global_Deadline,
+            Deadline         => 800,
+            Referenced_Event => TCPS_Act
+        )
+    )),
+    Event_Handlers => ((
+        Type                => System_Timed_Activity,
+        Input_Event         => TCPS_Act,
+        Output_Event        => TCPS_End,
+        Activity_Operation  => TC_Pump_Status_Job,
+        Activity_Server     => TC_Pump_Status_Server
+    ))
+);
+
+
+Transaction (
+    Type            => Regular,
+    Name            => Cooling_System_Status_Task,
+    External_Events => ((
+        Type    => Periodic, 
+        Name    => CSS_Act,
+        Period  => 800
+    )),
+    Internal_Events => ((
+        Type => Regular,
+        Name => CSS_End,
+        Timing_Requirements => (
+            Type             => Hard_Global_Deadline,
+            Deadline         => 800,
+            Referenced_Event => CSS_Act
+        )
+    )),
+    Event_Handlers => ((
+        Type                => System_Timed_Activity,
+        Input_Event         => CSS_Act,
+        Output_Event        => CSS_End,
+        Activity_Operation  => Cooling_System_Status_Job,
+        Activity_Server     => Cooling_System_Status_Server
+    ))
+);
+
+--------------------------------------------------------------------
+-- Sporadic transactions 
+--------------------------------------------------------------------
+Transaction (
+    Type            => Regular,
+    Name            => Control_Rods_Actuator_Task,
+    External_Events => ((
+        Type                => Sporadic, 
+        Name                => CRA_Act,
+        Min_Interarrival    => 2000,
+        Distribution        => Poisson
+    )),
+    Internal_Events => ((
+        Type => Regular,
+        Name => CRA_End,
+        Timing_Requirements => (
+            Type             => Hard_Global_Deadline,
+            Deadline         => 300,
+            Referenced_Event => CRA_Act
+        )
+    )),
+    Event_Handlers => ((
+        Type                => Activity,
+        Input_Event         => CRA_Act,
+        Output_Event        => CRA_End,
+        Activity_Operation  => Control_Rods_Actuator_Job,
+        Activity_Server     => Control_Rods_Actuator_Server
+    ))
+);
+
+Transaction (
+    Type            => Regular,
+    Name            => RC_Water_Pressure_Actuator_Task,
+    External_Events => ((
+        Type                => Sporadic, 
+        Name                => RCPA_Act,
+        Min_Interarrival    => 2000,
+        Distribution        => Poisson
+    )),
+    Internal_Events => ((
+        Type => Regular,
+        Name => RCPA_End,
+        Timing_Requirements => (
+            Type             => Hard_Global_Deadline,
+            Deadline         => 300,
+            Referenced_Event => RCPA_Act
+        )
+    )),
+    Event_Handlers => ((
+        Type                => Activity,
+        Input_Event         => RCPA_Act,
+        Output_Event        => RCPA_End,
+        Activity_Operation  => RC_Water_Pressure_Actuator_Job,
+        Activity_Server     => RC_Water_Pressure_Actuator_Server
+    ))
+);
+
+Transaction (
+    Type            => Regular,
+    Name            => Output_Power_Controller_Task,
+    External_Events => ((
+        Type                => Sporadic, 
+        Name                => OPC_Act,
+        Min_Interarrival    => 2000,
+        Distribution        => Poisson
+    )),
+    Internal_Events => ((
+        Type => Regular,
+        Name => OPC_End,
+        Timing_Requirements => (
+            Type             => Hard_Global_Deadline,
+            Deadline         => 300,
+            Referenced_Event => OPC_Act
+        )
+    )),
+    Event_Handlers => ((
+        Type                => Activity,
+        Input_Event         => OPC_Act,
+        Output_Event        => OPC_End,
+        Activity_Operation  => Output_Power_Controller_Job,
+        Activity_Server     => Output_Power_Controller_Server
+    ))
+);
+
+Transaction (
+    Type            => Regular,
+    Name            => Notification_Pipe_Task,
+    External_Events => ((
+        Type                => Sporadic, 
+        Name                => NP_Act,
+        Min_Interarrival    => 1000,
+        Distribution        => Poisson
+    )),
+    Internal_Events => ((
+        Type => Regular,
+        Name => NP_End,
+        Timing_Requirements => (
+            Type             => Hard_Global_Deadline,
+            Deadline         => 300,
+            Referenced_Event => NP_Act
+        )
+    )),
+    Event_Handlers => ((
+        Type                => Activity,
+        Input_Event         => NP_Act,
+        Output_Event        => NP_End,
+        Activity_Operation  => Notification_Pipe_Job,
+        Activity_Server     => Notification_Pipe_Server
+    ))
+);
+
+Transaction (
+    Type            => Regular,
+    Name            => Mode_Changer_Task,
+    External_Events => ((
+        Type                => Sporadic, 
+        Name                => MC_Act,
+        Min_Interarrival    => 2000,
+        Distribution        => Poisson
+    )),
+    Internal_Events => ((
+        Type => Regular,
+        Name => MC_End,
+        Timing_Requirements => (
+            Type             => Hard_Global_Deadline,
+            Deadline         => 500,
+            Referenced_Event => MC_Act
+        )
+    )),
+    Event_Handlers => ((
+        Type                => Activity,
+        Input_Event         => MC_Act,
+        Output_Event        => MC_End,
+        Activity_Operation  => Mode_Changer_Job,
+        Activity_Server     => Mode_Changer_Server
+    ))
+);
+
