@@ -17,7 +17,7 @@
 --------------------------------------------------------------------------------
 with Ada.Text_IO; use Ada.Text_IO;
 
---
+-- Import packages in order to start tasks.
 with Control_Rods;      use Control_Rods;
 with RC_Status;         use RC_Status;
 with TC_Status;         use TC_Status;
@@ -28,6 +28,7 @@ with Coordinator;       use Coordinator;
 
 with Ada.Command_Line;  use Ada.Command_Line;
 
+-- Program entry point.
 procedure Main is
 
 begin
@@ -57,6 +58,7 @@ begin
       Kill_Simulation;
       Set_Exit_Status(1);
    else
+      -- Start the simulation with the given configuration file.
       Trigger_Simulation(Argument(1));
    end if;
 end Main;

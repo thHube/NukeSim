@@ -77,7 +77,7 @@ package body Plant_Simulator is
          Int_Idx := Int_Idx + 1;
       end loop;
 
-      Put_Line("Done reading the config file");
+      Put_Line("[*] Configuration file read, starting simulation...");
 
       Free (List);
       Free (Reader);
@@ -95,11 +95,13 @@ package body Plant_Simulator is
       Start_Deamon.Awake_System(Seconds(2));
    end Trigger_Simulation;
 
+   -- Shutdown plant simulation task
    procedure Kill_Simulation is
    begin
       abort Plant_Simulation;
    end Kill_Simulation;
 
+   -- Protected resource that manages current plant status
    protected body Plant is
       -- Returns the current RC configuration
       function Get_RC_Configuration return RC_Configuration is
